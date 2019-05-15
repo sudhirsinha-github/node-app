@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-front
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nodejs-front
+  template:
+    metadata:
+      labels:
+        app: nodejs-front
+    spec:
+      containers:
+      - name: nodejs-front
+        image: jacregistry1.azurecr.io/aksdevops-nodejs:#{Build.BuildId}#
+        ports:
+        - containerPort: 80
+        env:
+          - name: PODNAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      imagePullSecrets:
+      - name: registrysecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-front
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: nodejs-front
